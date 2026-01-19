@@ -34,7 +34,11 @@ import {
   Shield,
   LogOut,
   Lock,
-  ArrowRight
+  ArrowRight,
+  Dumbbell,
+  Cloud,
+  Link,
+  Loader2
 } from 'lucide-react';
 
 // --- STYLES & LIQUID GLASS THEME ---
@@ -503,11 +507,87 @@ const Gateway = ({ onLogin }) => {
   );
 };
 
+// --- NEW COMPONENT: INTEGRATION MODAL ---
+const IntegrationModal = ({ type, onClose, onConnect }) => {
+  const [step, setStep] = useState('SELECT');
+  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const providers = {
+    calendar: [
+      { id: 'Google Calendar', icon: Cloud, color: 'text-blue-400' },
+      { id: 'Apple Calendar', icon: Calendar, color: 'text-red-400' },
+      { id: 'Notion Calendar', icon: Layout, color: 'text-white' }
+    ],
+    health: [
+      { id: 'Apple Health', icon: Activity, color: 'text-pink-400' },
+      { id: 'Hevy', icon: Dumbbell, color: 'text-blue-500' },
+      { id: 'Health Connect', icon: Smartphone, color: 'text-green-500' }
+    ]
+  };
+
+  const handleConnect = (providerId) => {
+    setSelectedProvider(providerId);
+    setStep('CONNECTING');
+    setLoading(true);
+    setTimeout(() => {
+      onConnect(providerId);
+    }, 2000); // Fake delay
+  };
+
+  const currentProviders = providers[type] || [];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+      <div className="w-full max-w-sm glass-panel p-6 rounded-[32px] border border-white/10 relative overflow-hidden">
+         <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-white/5 rounded-full hover:bg-white/10"><X size={16} /></button>
+         
+         <div className="text-center mb-8 mt-2">
+            <h2 className="text-xl font-semibold text-white mb-1">
+              {step === 'SELECT' ? `Connect ${type.charAt(0).toUpperCase() + type.slice(1)}` : 'Authenticating'}
+            </h2>
+            <p className="text-sm text-secondary">
+              {step === 'SELECT' ? 'Select your data provider' : `Syncing with ${selectedProvider}...`}
+            </p>
+         </div>
+
+         {step === 'SELECT' && (
+           <div className="space-y-3">
+             {currentProviders.map((p) => (
+               <button 
+                 key={p.id} 
+                 onClick={() => handleConnect(p.id)}
+                 className="w-full flex items-center gap-4 p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group"
+               >
+                 <div className={`w-10 h-10 rounded-full bg-black/40 flex items-center justify-center ${p.color}`}>
+                   <p.icon size={20} />
+                 </div>
+                 <span className="flex-1 text-left font-medium text-white">{p.id}</span>
+                 <ChevronRight size={16} className="text-white/20 group-hover:text-white group-hover:translate-x-1 transition-all" />
+               </button>
+             ))}
+           </div>
+         )}
+
+         {step === 'CONNECTING' && (
+           <div className="h-48 flex flex-col items-center justify-center">
+              <Loader2 size={48} className="text-blue-500 animate-spin mb-6" />
+              <div className="text-xs font-mono text-blue-300">Requesting Permissions...</div>
+           </div>
+         )}
+      </div>
+    </div>
+  );
+};
+
 // 2. SUCCESS AUDIT
 const SuccessAudit = ({ onComplete, updateGlobalState }) => {
   const [step, setStep] = useState(1);
+  const [activeModal, setActiveModal] = useState(null); // 'calendar' or 'health'
+  
   const [localData, setLocalData] = useState({
-    integrations: { calendar: false, health: false, blood: false },
+    // Integrations are now strings (provider name) or null
+    integrations: { calendar: null, health: null, blood: null },
     failurePoint: null,
     environmentScore: 50,
     sleepQuality: 70
@@ -521,6 +601,14 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
       updateGlobalState('settings', localData.integrations);
       onComplete();
     }
+  };
+
+  const handleConnection = (type, providerId) => {
+    setLocalData(prev => ({
+      ...prev,
+      integrations: { ...prev.integrations, [type]: providerId }
+    }));
+    setActiveModal(null);
   };
 
   return (
@@ -557,14 +645,25 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
         <div className="glass-panel p-2 rounded-[32px]">
         {step === 1 && (
           <div className="space-y-2 p-2">
-            {[{ id: 'calendar', icon: Calendar, label: "Calendar", detail: "Stress Load" }, { id: 'health', icon: Activity, label: "Health", detail: "HRV / Sleep" }].map((item) => (
-              <button key={item.id} onClick={() => setLocalData(p => ({...p, integrations: {...p.integrations, [item.id]: !p.integrations[item.id]}}))} 
-                className={`w-full flex items-center justify-between p-4 rounded-[24px] transition-all duration-300 ${localData.integrations[item.id] ? 'bg-white text-black' : 'hover:bg-white/5 text-white'}`}>
+            {[
+              { id: 'calendar', icon: Calendar, label: "Calendar", detail: "Stress Load" }, 
+              { id: 'health', icon: Activity, label: "Health", detail: "HRV / Sleep" }
+            ].map((item) => (
+              <button 
+                key={item.id} 
+                onClick={() => setActiveModal(item.id)} 
+                className={`w-full flex items-center justify-between p-4 rounded-[24px] transition-all duration-300 ${localData.integrations[item.id] ? 'bg-white text-black' : 'hover:bg-white/5 text-white'}`}
+              >
                  <div className="flex items-center gap-4">
                    <div className={`p-3 rounded-full ${localData.integrations[item.id] ? 'bg-black/10' : 'bg-white/10'}`}><item.icon size={20} /></div>
-                   <div className="text-left"><div className="font-semibold text-base">{item.label}</div><div className={`text-xs ${localData.integrations[item.id] ? 'text-black/60' : 'text-white/40'}`}>{item.detail}</div></div>
+                   <div className="text-left">
+                     <div className="font-semibold text-base">{item.label}</div>
+                     <div className={`text-xs ${localData.integrations[item.id] ? 'text-black/60' : 'text-white/40'}`}>
+                       {localData.integrations[item.id] ? `Linked: ${localData.integrations[item.id]}` : "Tap to Connect"}
+                     </div>
+                   </div>
                  </div>
-                 {localData.integrations[item.id] && <CheckCircle2 size={24} className="text-green-500" />}
+                 {localData.integrations[item.id] ? <CheckCircle2 size={24} className="text-green-500" /> : <div className="w-6 h-6 rounded-full border border-white/20" />}
               </button>
             ))}
           </div>
@@ -575,8 +674,8 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
              <div className={`w-24 h-24 rounded-full flex items-center justify-center transition-all ${localData.integrations.blood ? 'bg-green-500 text-white shadow-[0_0_30px_rgba(48,209,88,0.4)]' : 'bg-white/5 text-secondary border border-white/10'}`}>
                 <Droplets size={32} />
              </div>
-             <button onClick={() => setLocalData(p => ({...p, integrations: {...p.integrations, blood: !p.integrations.blood}}))} className="btn-liquid px-6 py-2">
-               {localData.integrations.blood ? "Data Synced" : "Upload PDF Panel"}
+             <button onClick={() => setLocalData(p => ({...p, integrations: {...p.integrations, blood: !p.integrations.blood ? 'PDF Upload' : null}}))} className="btn-liquid px-6 py-2">
+               {localData.integrations.blood ? "Panel Uploaded" : "Upload PDF Panel"}
              </button>
           </div>
         )}
@@ -613,6 +712,8 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
           {step === 5 ? "Generate Protocol" : "Continue"}
         </button>
       </div>
+
+      {activeModal && <IntegrationModal type={activeModal} onClose={() => setActiveModal(null)} onConnect={(provider) => handleConnection(activeModal, provider)} />}
     </div>
   );
 };
@@ -620,7 +721,8 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
 // 3. SETTINGS VIEW
 const SettingsView = ({ settings, updateSettings, user, onSignOut }) => {
   const [notifications, setNotifications] = useState(true);
-  
+  const [activeModal, setActiveModal] = useState(null);
+
   return (
     <div className="p-6 pt-12 fade-enter max-w-lg mx-auto pb-32">
       <h2 className="text-3xl font-semibold text-white mb-8">Settings</h2>
@@ -648,10 +750,24 @@ const SettingsView = ({ settings, updateSettings, user, onSignOut }) => {
                <div className={`w-8 h-8 rounded-lg ${item.color} flex items-center justify-center text-white shadow-md`}>
                  <item.icon size={16} />
                </div>
-               <span className="text-white font-medium">{item.label}</span>
+               <div className="flex flex-col">
+                 <span className="text-white font-medium">{item.label}</span>
+                 {settings[item.id] && <span className="text-[10px] text-green-400">{settings[item.id]}</span>}
+               </div>
              </div>
+             
+             {/* If connected, show disconnect toggle (which removes it). If not, show connect button */}
              <button 
-               onClick={() => updateSettings(item.id)}
+               onClick={() => {
+                 if (settings[item.id]) {
+                    // Disconnect
+                    updateSettings(item.id, null);
+                 } else {
+                    // Connect (Open Modal)
+                    if (item.id === 'blood') updateSettings(item.id, 'PDF Uploaded'); // Simple toggle for blood for now
+                    else setActiveModal(item.id);
+                 }
+               }}
                className={`w-12 h-7 rounded-full transition-colors duration-300 relative ${settings[item.id] ? 'bg-green-500' : 'bg-white/10'}`}
              >
                <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 shadow-sm ${settings[item.id] ? 'translate-x-5' : 'translate-x-0'}`} />
@@ -705,8 +821,19 @@ const SettingsView = ({ settings, updateSettings, user, onSignOut }) => {
        </button>
        
        <div className="mt-8 text-center text-caption text-secondary/40">
-         Osnovia v2.4.0 (Build 9942) <br/> Designed in California
+         Osnovia v2.1.0 (Build 20.01) <br/> Designed in Moscow by NISFALDAM
        </div>
+
+       {activeModal && (
+         <IntegrationModal 
+           type={activeModal} 
+           onClose={() => setActiveModal(null)} 
+           onConnect={(provider) => {
+             updateSettings(activeModal, provider);
+             setActiveModal(null);
+           }} 
+         />
+       )}
     </div>
   );
 };
@@ -984,7 +1111,7 @@ export default function App() {
   
   const [globalState, setGlobalState] = useState({
     user: { name: 'User' },
-    settings: { calendar: false, health: false, blood: false },
+    settings: { calendar: null, health: null, blood: null }, // Initialize as null (not false) for "not connected"
     assessment: { sleepQuality: 50, failurePoint: null, environmentScore: 50 },
     cards: [],
     stats: { sleep: 4, nutrition: 3, activity: 5, stress: 3, cognitive: 6 }
@@ -1004,14 +1131,15 @@ export default function App() {
          };
       }
       if (key === 'protocol') return { ...prev, cards: value };
-      if (key === 'settings') return { ...prev, settings: value };
+      if (key === 'settings') return { ...prev, settings: value }; // Handle full object update
       if (key === 'user') return { ...prev, user: value };
       return { ...prev, [key]: value };
     });
   };
 
-  const updateSettings = (id) => {
-    updateGlobalState('settings', { ...globalState.settings, [id]: !globalState.settings[id] });
+  const updateSettings = (id, value) => {
+    // Value is the provider string (e.g., 'Google Calendar') or null
+    updateGlobalState('settings', { ...globalState.settings, [id]: value });
   };
   
   const handleLogin = (username) => {
@@ -1022,8 +1150,6 @@ export default function App() {
   const handleSignOut = () => {
     setView('GATEWAY');
     setActiveTab('dashboard');
-    // Optional: Reset state or keep it for next login?
-    // For now we keep state to simulate re-entry, but you could reset here.
   };
 
   if (view === 'GATEWAY') return <><GlobalStyles /><Gateway onLogin={handleLogin} /></>;
@@ -1056,7 +1182,6 @@ export default function App() {
               {id === 'vault' && <BookOpen size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
               {id === 'evolution' && <Dna size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
               {id === 'settings' && <Settings size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
-              {/* Removed the dot marker as requested */}
             </button>
           ))}
         </div>
