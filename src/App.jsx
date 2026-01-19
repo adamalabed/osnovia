@@ -32,7 +32,9 @@ import {
   Network,
   Bell,
   Shield,
-  LogOut
+  LogOut,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 
 // --- STYLES & LIQUID GLASS THEME ---
@@ -44,9 +46,9 @@ const GlobalStyles = () => (
       /* Apple-esque Dark Mode Palette */
       --bg-deep: #000000;
       --text-primary: #FFFFFF;
-      --text-secondary: rgba(235, 235, 245, 0.6); /* Apple's standard secondary text */
+      --text-secondary: rgba(235, 235, 245, 0.6);
       --text-tertiary: rgba(235, 235, 245, 0.3);
-      --accent-blue: #0A84FF; /* iOS Blue */
+      --accent-blue: #0A84FF;
       --accent-indigo: #5E5CE6;
       --accent-orange: #FF9F0A;
       --accent-green: #30D158;
@@ -66,8 +68,6 @@ const GlobalStyles = () => (
     }
 
     /* --- LIQUID GLASS MATERIAL --- */
-    /* The core of the "Apple" look: Heavy blur, translucency, subtle borders */
-    
     .liquid-bg-layer {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -76,7 +76,6 @@ const GlobalStyles = () => (
       overflow: hidden;
     }
 
-    /* Floating Orbs for "Liquid" feel */
     .orb {
       position: absolute;
       border-radius: 50%;
@@ -96,14 +95,14 @@ const GlobalStyles = () => (
     }
 
     .glass-panel {
-      background: rgba(30, 30, 35, 0.4); /* Darker translucent base */
-      backdrop-filter: blur(40px) saturate(180%); /* iOS style heavy blur */
+      background: rgba(30, 30, 35, 0.4);
+      backdrop-filter: blur(40px) saturate(180%);
       -webkit-backdrop-filter: blur(40px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 
         0 4px 24px -1px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1); /* Inner light lip */
-      border-radius: 24px; /* Large rounded corners */
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     
@@ -129,19 +128,12 @@ const GlobalStyles = () => (
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 999px; /* Pill shape */
+      border-radius: 999px;
       color: white;
       font-weight: 500;
       transition: all 0.2s;
     }
     .btn-liquid:hover { background: rgba(255, 255, 255, 0.2); }
-    .btn-primary {
-      background: #fff;
-      color: #000;
-      border-radius: 999px;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-    }
 
     /* Animations */
     .fade-enter { animation: fadeEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -150,7 +142,7 @@ const GlobalStyles = () => (
     .slide-up-modal { animation: slideUpModal 0.5s cubic-bezier(0.32, 0.72, 0, 1) forwards; }
     @keyframes slideUpModal { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    /* Custom Range Slider (iOS style) */
+    /* Custom Range Slider */
     input[type=range] {
       -webkit-appearance: none;
       width: 100%;
@@ -174,7 +166,21 @@ const GlobalStyles = () => (
       border-radius: 2px;
     }
     
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    /* Custom Scrollbar for Liquid Feel */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
   `}</style>
 );
 
@@ -191,7 +197,7 @@ const generateProtocol = (data) => {
       type: 'RECOVERY',
       title: 'Cortisol Flush',
       subtitle: 'Cold Exposure + Sunlight',
-      logic: 'Sleep efficiency < 60%. Circadian anchor required to reset adenosine receptors.',
+      logic: 'Your sleep efficiency is below the 60% recovery threshold. This indicates accumulated adenosine and a disrupted circadian rhythm. We need to trigger an acute cortisol spike immediately upon waking to anchor your circadian clock and clear adenosine, ensuring better sleep pressure tonight.',
       toolType: 'TIMER',
       duration: 180,
       completed: false,
@@ -204,7 +210,7 @@ const generateProtocol = (data) => {
       type: 'ACTIVATION',
       title: 'Metabolic Prime',
       subtitle: 'Zone 2 Fasted Cardio',
-      logic: 'Sleep optimal. System ready for high-output metabolic conditioning.',
+      logic: 'Sleep data indicates optimal recovery. Your autonomic nervous system is primed for stress adaptation. We will leverage this window for Zone 2 cardio to enhance mitochondrial density and improve lactate clearance without inducing central nervous system fatigue.',
       toolType: 'TIMER',
       duration: 1200,
       completed: false,
@@ -220,7 +226,7 @@ const generateProtocol = (data) => {
       type: 'REGULATION',
       title: 'Vagus Nerve Reset',
       subtitle: 'Physiological Sigh Protocol',
-      logic: 'High anxiety detected. Direct intervention on parasympathetic nervous system required.',
+      logic: 'Self-reported anxiety correlates with sympathetic overdrive. We need to manually engage the parasympathetic nervous system via the Vagus nerve. The Physiological Sigh (double inhale, long exhale) mechanically offloads CO2 and slows the heart rate in real-time.',
       toolType: 'BREATH',
       completed: false,
       color: 'accent-blue'
@@ -232,7 +238,7 @@ const generateProtocol = (data) => {
       type: 'FOCUS',
       title: 'Neural Drive',
       subtitle: '90m Sprint / 40Hz Binaural',
-      logic: 'Cognitive load reported as "Foggy". Beta-wave stimulation required.',
+      logic: 'Brain fog suggests a lack of dopamine and norepinephrine availability. We will use a high-intensity focus block paired with 40Hz binaural beats to synchronize neural firing patterns and upregulate vigilance neurochemistry.',
       toolType: 'TIMER',
       duration: 5400,
       completed: false,
@@ -245,7 +251,7 @@ const generateProtocol = (data) => {
       type: 'FLOW',
       title: 'Deep Work Block',
       subtitle: 'Single-Task Execution',
-      logic: 'Baseline stable. Optimize for flow state duration.',
+      logic: 'Your baseline is stable. This is the optimal window for a Deep Work bout. The goal is to reach a transient hypofrontality (flow state) where the prefrontal cortex downregulates, allowing for pattern recognition and high-output synthesis.',
       toolType: 'TIMER',
       duration: 3600,
       completed: false,
@@ -261,9 +267,9 @@ const generateProtocol = (data) => {
       type: 'BIOCHEM',
       title: 'Glucose Stabilization',
       subtitle: 'High-Protein / Low-GI',
-      logic: 'Biomarker sync indicates insulin sensitivity window. Prioritize protein.',
+      logic: 'Biomarker sync indicates insulin sensitivity is highest in the morning. To prevent a midday cognitive crash, we must flatten the glucose curve. Prioritize 30g of leucine-rich protein to trigger muscle protein synthesis without spiking blood sugar.',
       toolType: 'CHECKLIST',
-      items: ['30g Protein Intake', 'No caffeine after 2PM', 'Hydration + Electrolytes'],
+      items: ['30g Leucine-rich Protein', 'Delay Caffeine 90-120min', '500ml Water + Electrolytes'],
       completed: false,
       color: 'accent-green'
     });
@@ -274,9 +280,9 @@ const generateProtocol = (data) => {
       type: 'AESTHETICS',
       title: 'Context Design',
       subtitle: 'Visual Field Optimization',
-      logic: 'External order regulates internal state. Reduce visual noise.',
+      logic: 'The brain processes visual clutter as unfinished tasks, draining cognitive load. By optimizing your visual field and lighting spectrum (cool blue/white for alertness), we passively regulate your internal state towards focus.',
       toolType: 'CHECKLIST',
-      items: ['Clear workspace', 'Phone in "Deep Stealth" mode', 'Set lighting to cool spectrum'],
+      items: ['Limit Visual Horizon (Walls)', 'Phone: Greyscale Mode', 'Light Temp: >5000K'],
       completed: false,
       color: 'text-secondary'
     });
@@ -285,45 +291,35 @@ const generateProtocol = (data) => {
   return cards;
 };
 
-// --- COMPONENT: SYSTEM MAP ---
+// --- COMPONENTS ---
+
 const SystemMap = ({ assessment }) => {
   return (
     <div className="glass-panel p-6 mb-8 relative overflow-hidden group">
-      {/* Background Sheen */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-      
       <div className="flex justify-between items-center relative z-10">
-        {/* Node 1 */}
         <div className="flex flex-col items-center gap-3">
            <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg border border-white/10 ${assessment.sleepQuality < 60 ? 'bg-orange-500/20 text-orange-400' : 'bg-green-500/20 text-green-400'}`}>
               <Moon size={20} />
            </div>
            <span className="text-caption">Sleep</span>
         </div>
-
-        {/* Dynamic Connector */}
         <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent relative mx-4">
            <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 text-[9px] font-mono text-secondary">
              IMPACTS
            </div>
         </div>
-
-        {/* Node 2 */}
         <div className="flex flex-col items-center gap-3">
            <div className={`w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg border border-white/10 ${assessment.failurePoint === 'Anxiety' ? 'bg-orange-500/20 text-orange-400' : 'bg-blue-500/20 text-blue-400'}`}>
               <Activity size={20} />
            </div>
            <span className="text-caption">Stress</span>
         </div>
-
-         {/* Dynamic Connector */}
          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent relative mx-4">
            <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 text-[9px] font-mono text-secondary">
              REGULATES
            </div>
         </div>
-
-        {/* Node 3 */}
         <div className="flex flex-col items-center gap-3">
            <div className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md shadow-lg border border-white/10 bg-white/5">
               <Brain size={20} className="text-white/70" />
@@ -331,7 +327,6 @@ const SystemMap = ({ assessment }) => {
            <span className="text-caption">Focus</span>
         </div>
       </div>
-      
       <div className="mt-6 p-4 rounded-2xl bg-white/5 border border-white/5">
         <p className="text-sm text-secondary leading-relaxed">
           <span className="text-white font-medium">Insight:</span> Sleep fragmentation ({assessment.sleepQuality}%) is destabilizing your cortisol baseline, manifesting as <span className="text-white">"{assessment.failurePoint || 'Fatigue'}"</span>.
@@ -341,7 +336,6 @@ const SystemMap = ({ assessment }) => {
   );
 };
 
-// --- COMPONENT: FOCUS TIMER ---
 const FocusTimer = ({ durationSeconds = 300 }) => {
   const [timeLeft, setTimeLeft] = useState(durationSeconds);
   const [isActive, setIsActive] = useState(false);
@@ -361,16 +355,12 @@ const FocusTimer = ({ durationSeconds = 300 }) => {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-
   const progress = (timeLeft / durationSeconds) * 100;
 
   return (
     <div className="glass-panel p-8 flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Background Progress Fill */}
       <div className="absolute bottom-0 left-0 right-0 bg-blue-500/10 transition-all duration-1000 ease-linear" style={{ height: `${progress}%` }} />
-      
       <div className="font-mono text-6xl text-white mb-8 tracking-tighter tabular-nums relative z-10" style={{ textShadow: '0 0 40px rgba(255,255,255,0.3)' }}>{formatTime(timeLeft)}</div>
-      
       <div className="flex gap-4 relative z-10">
         <button onClick={toggle} className={`h-16 w-16 rounded-full flex items-center justify-center transition-all ${isActive ? 'bg-white/10 backdrop-blur-md text-white' : 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:scale-105'}`}>
           {isActive ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
@@ -383,7 +373,6 @@ const FocusTimer = ({ durationSeconds = 300 }) => {
   );
 };
 
-// --- COMPONENT: BREATHING ---
 const InteractiveBreathingCircle = () => {
   const [active, setActive] = useState(false);
   const [phase, setPhase] = useState('Ready');
@@ -400,11 +389,8 @@ const InteractiveBreathingCircle = () => {
   return (
     <div className="flex flex-col items-center justify-center py-12">
       <div className="relative w-64 h-64 flex items-center justify-center mb-12">
-        {/* Outer Glow layers */}
         <div className={`absolute inset-0 bg-blue-500/30 rounded-full blur-3xl transition-all duration-[4000ms] ease-in-out ${active ? 'scale-150 opacity-100' : 'scale-50 opacity-0'}`} />
         <div className={`absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl transition-all duration-[4000ms] ease-in-out ${active ? 'scale-125 delay-100' : 'scale-50'}`} />
-        
-        {/* Main Circle */}
         <div className={`relative w-full h-full rounded-full border border-white/20 backdrop-blur-sm flex items-center justify-center transition-all duration-[4000ms] ease-in-out ${active ? 'scale-110 bg-white/5' : 'scale-100 bg-transparent'}`}>
             <div className="text-center z-10">
             <div className="text-caption text-blue-300 mb-2 tracking-widest">VAGUS RESET</div>
@@ -412,7 +398,6 @@ const InteractiveBreathingCircle = () => {
             </div>
         </div>
       </div>
-      
       <button onClick={() => setActive(!active)} className={`px-10 py-4 rounded-full font-medium tracking-wide transition-all ${active ? 'bg-white/10 text-white backdrop-blur-md border border-white/10' : 'bg-white text-black shadow-lg hover:scale-105'}`}>
         {active ? 'End Session' : 'Begin Breathing'}
       </button>
@@ -420,48 +405,97 @@ const InteractiveBreathingCircle = () => {
   );
 };
 
-// --- PAGE 1: GATEWAY ---
+// --- VIEWS ---
+
+// 1. GATEWAY (AUTH)
 const Gateway = ({ onLogin }) => {
+  const [mode, setMode] = useState('login'); // 'login' or 'signup'
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [log, setLog] = useState("");
 
-  const handleEnter = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!username || !password) return;
+    
     setLoading(true);
-    const logs = ["Connecting to Core...", "Syncing Biomarkers...", "Calibrating Neural Profile...", "Ready."];
+    const logs = mode === 'login' 
+      ? ["Authenticating...", "Retrieving Biological Data...", "Decrypting Profile...", "Access Granted."]
+      : ["Creating Neural ID...", "Initializing Database...", "Syncing Defaults...", "Welcome, Initiate."];
+    
     let i = 0;
     const interval = setInterval(() => {
       setLog(logs[i]);
       i++;
-      if (i >= logs.length) { clearInterval(interval); setTimeout(onLogin, 500); }
+      if (i >= logs.length) { 
+        clearInterval(interval); 
+        setTimeout(() => onLogin(username), 500); 
+      }
     }, 800);
   };
 
   return (
     <div className="h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Elements */}
       <div className="liquid-bg-layer">
         <div className="orb orb-1" />
         <div className="orb orb-2" />
         <div className="orb orb-3" />
       </div>
 
-      <div className="z-10 text-center space-y-12 max-w-sm w-full glass-panel p-12 !rounded-[40px] border-opacity-20 bg-opacity-30">
-        <div className="space-y-6 flex flex-col items-center">
-          <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-white/20 to-transparent border border-white/10 flex items-center justify-center backdrop-blur-xl shadow-2xl">
-            <Hexagon size={40} className="text-white" strokeWidth={1.5} />
+      <div className="z-10 text-center space-y-8 max-w-sm w-full glass-panel p-10 !rounded-[40px] border-opacity-20 bg-opacity-30">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-white/20 to-transparent border border-white/10 flex items-center justify-center backdrop-blur-xl shadow-2xl mb-6">
+            <Hexagon size={32} className="text-white" strokeWidth={1.5} />
           </div>
-          <h1 className="text-caption text-secondary tracking-[0.4em]">OSNOVIA OS</h1>
+          <h1 className="text-caption text-secondary tracking-[0.4em] mb-2">OSNOVIA OS</h1>
+          <h2 className="text-2xl font-semibold text-white tracking-tight">System Access</h2>
         </div>
+
         {!loading ? (
-          <div className="space-y-6 fade-enter">
-            <h2 className="text-4xl font-semibold text-white tracking-tight">System<br/>Optimization</h2>
-            <button onClick={handleEnter} className="w-full py-4 bg-white text-black text-sm font-semibold rounded-full hover:bg-opacity-90 transition-all hover:scale-[1.02] shadow-[0_0_40px_-10px_rgba(255,255,255,0.5)]">
-              Initialize
+          <form onSubmit={handleSubmit} className="space-y-4 fade-enter w-full">
+            <div className="space-y-3">
+              <div className="relative">
+                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary" />
+                <input 
+                  type="text" 
+                  placeholder="Username / ID" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-black/20 border border-white/10 rounded-full py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:bg-black/40 transition-colors"
+                />
+              </div>
+              <div className="relative">
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary" />
+                <input 
+                  type="password" 
+                  placeholder="Password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-black/20 border border-white/10 rounded-full py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:bg-black/40 transition-colors"
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="w-full py-3 bg-white text-black text-sm font-bold rounded-full hover:scale-[1.02] transition-transform shadow-[0_0_30px_-10px_rgba(255,255,255,0.5)] mt-4">
+              {mode === 'login' ? 'Enter System' : 'Create Profile'}
             </button>
-          </div>
+            
+            <div className="pt-4 flex justify-center gap-2 text-xs">
+              <span className="text-secondary">{mode === 'login' ? "New user?" : "Existing user?"}</span>
+              <button 
+                type="button" 
+                onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+                className="text-white font-semibold hover:underline"
+              >
+                {mode === 'login' ? "Initialize Sequence" : "Log In"}
+              </button>
+            </div>
+          </form>
         ) : (
-          <div className="h-12 flex items-center justify-center">
-             <div className="text-sm text-blue-300 font-mono animate-pulse">{log}</div>
+          <div className="h-32 flex flex-col items-center justify-center">
+             <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin mb-4" />
+             <div className="text-xs text-blue-300 font-mono animate-pulse">{log}</div>
           </div>
         )}
       </div>
@@ -469,7 +503,7 @@ const Gateway = ({ onLogin }) => {
   );
 };
 
-// --- PAGE 2: SUCCESS AUDIT ---
+// 2. SUCCESS AUDIT
 const SuccessAudit = ({ onComplete, updateGlobalState }) => {
   const [step, setStep] = useState(1);
   const [localData, setLocalData] = useState({
@@ -484,7 +518,6 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
     else {
       updateGlobalState('assessment', localData);
       updateGlobalState('protocol', generateProtocol(localData));
-      // Sync integrations to global settings
       updateGlobalState('settings', localData.integrations);
       onComplete();
     }
@@ -492,7 +525,6 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
 
   return (
     <div className="h-screen flex flex-col p-8 relative">
-       {/* Background Elements */}
        <div className="liquid-bg-layer">
         <div className="orb orb-1 opacity-40" />
         <div className="orb orb-2 opacity-40" />
@@ -585,73 +617,14 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
   );
 };
 
-// --- PAGE 4: PROTOCOL DETAIL ---
-const ProtocolDetail = ({ card, onClose, onComplete }) => {
-  if (!card) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-8 backdrop-blur-sm bg-black/20">
-      <div className="bg-[#1C1C1E] sm:rounded-[40px] rounded-t-[40px] w-full max-w-lg h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl overflow-hidden slide-up-modal border border-white/10 relative">
-        
-        {/* Modal Header */}
-        <div className="p-6 flex justify-between items-center border-b border-white/5 bg-white/5 backdrop-blur-xl absolute top-0 w-full z-20">
-          <div className="text-caption text-secondary">Protocol Module</div>
-          <button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"><X size={16} /></button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto pt-24 pb-32 px-8 custom-scrollbar">
-           <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide mb-6 bg-white/10 text-white border border-white/10`}>
-             {card.type}
-           </div>
-           
-           <h1 className="text-4xl font-semibold text-white mb-2">{card.title}</h1>
-           <p className="text-xl text-secondary font-light mb-8">{card.subtitle}</p>
-
-           <div className="glass-panel p-6 mb-8 !bg-white/5">
-             <h3 className="text-caption mb-3 text-blue-400">Scientific Mechanism</h3>
-             <p className="text-secondary leading-relaxed font-light">{card.logic}</p>
-           </div>
-
-           <div className="mb-8">
-             {card.toolType === 'TIMER' && <FocusTimer durationSeconds={card.duration} />}
-             {card.toolType === 'BREATH' && <InteractiveBreathingCircle />}
-             {card.toolType === 'CHECKLIST' && (
-               <div className="glass-panel p-6">
-                 <ul className="space-y-4">
-                   {card.items && card.items.map((item, idx) => (
-                     <li key={idx} className="flex gap-4 items-center text-secondary">
-                       <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center">
-                         <div className="w-3 h-3 rounded-full bg-white opacity-0 hover:opacity-100 transition-opacity cursor-pointer" />
-                       </div>
-                       {item}
-                     </li>
-                   ))}
-                 </ul>
-               </div>
-             )}
-           </div>
-        </div>
-
-        <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-[#1C1C1E] via-[#1C1C1E] to-transparent z-20">
-          <button onClick={() => onComplete(card.id)} className="w-full py-4 bg-white text-black font-semibold rounded-full hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 shadow-lg">
-            <Check size={18} /> Complete Session
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- VIEWS ---
-
-// SETTINGS VIEW
-const SettingsView = ({ settings, updateSettings, user }) => {
+// 3. SETTINGS VIEW
+const SettingsView = ({ settings, updateSettings, user, onSignOut }) => {
   const [notifications, setNotifications] = useState(true);
   
   return (
     <div className="p-6 pt-12 fade-enter max-w-lg mx-auto pb-32">
       <h2 className="text-3xl font-semibold text-white mb-8">Settings</h2>
 
-      {/* Profile Section */}
       <div className="glass-panel p-4 mb-8 flex items-center gap-4 !rounded-[24px]">
         <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-500 flex items-center justify-center text-xl font-bold text-white shadow-lg">
           {user.name.charAt(0)}
@@ -663,7 +636,6 @@ const SettingsView = ({ settings, updateSettings, user }) => {
         <button className="ml-auto px-4 py-2 bg-white/10 rounded-full text-xs font-semibold text-white hover:bg-white/20 transition-colors">Edit</button>
       </div>
 
-      {/* Integrations Group */}
       <h3 className="text-caption text-secondary mb-3 pl-4">Data Sources</h3>
       <div className="glass-panel overflow-hidden mb-8 !rounded-[24px]">
         {[
@@ -688,7 +660,6 @@ const SettingsView = ({ settings, updateSettings, user }) => {
         ))}
       </div>
 
-       {/* System Group */}
        <h3 className="text-caption text-secondary mb-3 pl-4">System Preferences</h3>
        <div className="glass-panel overflow-hidden !rounded-[24px]">
           <div className="p-4 flex items-center justify-between border-b border-white/5">
@@ -709,12 +680,12 @@ const SettingsView = ({ settings, updateSettings, user }) => {
                </div>
                <span className="text-white font-medium">Push Notifications</span>
              </div>
-              <button 
+              <div 
                onClick={() => setNotifications(!notifications)}
                className={`w-12 h-7 rounded-full transition-colors duration-300 relative ${notifications ? 'bg-green-500' : 'bg-white/10'}`}
              >
                <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 shadow-sm ${notifications ? 'translate-x-5' : 'translate-x-0'}`} />
-             </button>
+             </div>
           </div>
           <div className="p-4 flex items-center justify-between">
              <div className="flex items-center gap-3">
@@ -729,7 +700,7 @@ const SettingsView = ({ settings, updateSettings, user }) => {
           </div>
        </div>
        
-       <button className="mt-8 w-full py-3 bg-red-500/10 text-red-500 font-medium rounded-2xl border border-red-500/20 hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2">
+       <button onClick={onSignOut} className="mt-8 w-full py-3 bg-red-500/10 text-red-500 font-medium rounded-2xl border border-red-500/20 hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2">
          <LogOut size={16} /> Sign Out
        </button>
        
@@ -740,8 +711,8 @@ const SettingsView = ({ settings, updateSettings, user }) => {
   );
 };
 
-// MISSION CONTROL
-const MissionControl = ({ onCardClick, cards, assessment }) => {
+// 4. MISSION CONTROL (DASHBOARD)
+const MissionControl = ({ onCardClick, cards, assessment, onProfileClick }) => {
   return (
     <div className="p-6 pt-12 fade-enter max-w-lg mx-auto pb-32">
       <div className="flex justify-between items-end mb-8">
@@ -751,9 +722,9 @@ const MissionControl = ({ onCardClick, cards, assessment }) => {
             <Activity size={12} /> <span>System Optimized</span>
           </div>
         </div>
-        <div className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center">
+        <button onClick={onProfileClick} className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
           <User size={20} className="text-white" />
-        </div>
+        </button>
       </div>
 
       <SystemMap assessment={assessment} />
@@ -778,17 +749,57 @@ const MissionControl = ({ onCardClick, cards, assessment }) => {
   );
 };
 
-// VAULT
-const Vault = () => {
+// 5. VAULT (LIBRARY)
+const Vault = ({ onOpenLibraryItem }) => {
   const [filter, setFilter] = useState('ALL');
   const pillars = ['ALL', 'SLEEP', 'NUTRITION', 'STRESS', 'ACTIVITY', 'COGNITIVE'];
   
   const content = [
-    { cat: 'SLEEP', title: 'Huberman Sleep Kit', sub: 'Protocols for Deep Rest', color: 'bg-indigo-500' },
-    { cat: 'NUTRITION', title: 'Metabolic Flexibility', sub: 'Glucose management', color: 'bg-green-500' },
-    { cat: 'STRESS', title: 'Physiological Sigh', sub: 'Instant anxiety reduction', color: 'bg-blue-500' },
-    { cat: 'ACTIVITY', title: 'Zone 2 Training', sub: 'Mitochondrial health', color: 'bg-orange-500' },
-    { cat: 'COGNITIVE', title: 'Deep Work Rules', sub: 'Cal Newport Methodology', color: 'bg-purple-500' }
+    { 
+      id: 1, 
+      cat: 'SLEEP', 
+      title: 'Huberman Sleep Kit', 
+      sub: 'Protocols for Deep Rest', 
+      color: 'bg-indigo-500',
+      description: "A comprehensive protocol based on the research of Dr. Andrew Huberman. This kit focuses on light exposure, temperature regulation, and NSDR (Non-Sleep Deep Rest) to optimize the architecture of sleep stages 3 and 4.",
+      steps: ["Morning: View sunlight for 10-20 min within 1 hour of waking.", "Afternoon: Delay caffeine intake 90-120 minutes.", "Evening: No bright overhead lights after 8 PM.", "Night: Keep room temperature between 65-68°F."]
+    },
+    { 
+      id: 2, 
+      cat: 'NUTRITION', 
+      title: 'Metabolic Flexibility', 
+      sub: 'Glucose management', 
+      color: 'bg-green-500',
+      description: "Strategies to switch your body's fuel source efficiently between glucose and fatty acids. Essential for preventing energy crashes and optimizing mitochondrial function.",
+      steps: ["Practice Time-Restricted Feeding (12-16 hour window).", "Prioritize protein and fiber before carbohydrates.", "Walk for 10 minutes after main meals.", "Consume vinegar (1 tbsp) before high-carb meals."]
+    },
+    { 
+      id: 3, 
+      cat: 'STRESS', 
+      title: 'Physiological Sigh', 
+      sub: 'Instant anxiety reduction', 
+      color: 'bg-blue-500',
+      description: "The fastest way to reduce autonomic arousal in real-time. Discovered in the 1930s, this breathing pattern reinflates collapsed alveoli in the lungs and offloads carbon dioxide.",
+      steps: ["Inhale deeply through the nose.", "Inhale again (a short, sharp intake) to fully inflate lungs.", "Exhale slowly and fully through the mouth.", "Repeat 2-3 times."]
+    },
+    { 
+      id: 4, 
+      cat: 'ACTIVITY', 
+      title: 'Zone 2 Training', 
+      sub: 'Mitochondrial health', 
+      color: 'bg-orange-500',
+      description: "Low-intensity steady-state cardio performed at 60-70% of max heart rate. This intensity maximizes fat oxidation and builds the aerobic base required for high-intensity efforts.",
+      steps: ["Perform for 45-60 minutes.", "Maintain a pace where you can hold a conversation but it requires effort.", "Aim for 150-180 minutes per week total.", "Nasal breathe if possible."]
+    },
+    { 
+      id: 5, 
+      cat: 'COGNITIVE', 
+      title: 'Deep Work Rules', 
+      sub: 'Cal Newport Methodology', 
+      color: 'bg-purple-500',
+      description: "A framework for performing professional activities in a state of distraction-free concentration that push your cognitive capabilities to their limit.",
+      steps: ["Define a clear goal for the session.", "Eliminate all external distractions (phone in another room).", "Work in 90-minute blocks.", "Use a 'shutdown ritual' at the end of the day."]
+    }
   ];
 
   const filteredContent = filter === 'ALL' ? content : content.filter(c => c.cat === filter);
@@ -796,17 +807,20 @@ const Vault = () => {
   return (
     <div className="p-6 pt-12 fade-enter max-w-lg mx-auto pb-32">
       <h2 className="text-3xl font-semibold text-white mb-6">Library</h2>
-      <div className="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
+      
+      {/* Redesigned Horizontal Scroll */}
+      <div className="flex gap-2 mb-8 overflow-x-auto custom-scrollbar pb-4">
          {pillars.map(cat => (
            <button key={cat} onClick={() => setFilter(cat)} 
-             className={`px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${filter === cat ? 'bg-white text-black' : 'bg-white/10 text-secondary hover:bg-white/20'}`}>
+             className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap border border-transparent ${filter === cat ? 'bg-white text-black shadow-lg scale-105' : 'bg-white/10 text-secondary hover:bg-white/20 hover:border-white/10'}`}>
              {cat}
            </button>
          ))}
       </div>
+
       <div className="space-y-3">
-        {filteredContent.map((item, i) => (
-          <div key={i} className="flex gap-5 p-5 glass-panel !rounded-[24px] items-center hover:bg-white/10 transition-colors cursor-pointer group">
+        {filteredContent.map((item) => (
+          <div key={item.id} onClick={() => onOpenLibraryItem(item)} className="flex gap-5 p-5 glass-panel !rounded-[24px] items-center hover:bg-white/10 transition-colors cursor-pointer group">
             <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
               <BookOpen size={20} className="text-white" />
             </div>
@@ -816,10 +830,99 @@ const Vault = () => {
               <div className="text-secondary text-sm">{item.sub}</div>
             </div>
             <div className="flex-1 text-right">
-              <ChevronRight size={20} className="text-white/20 inline-block" />
+              <ChevronRight size={20} className="text-white/20 inline-block group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+};
+
+// 6. MODALS (Protocol & Library)
+const ProtocolDetail = ({ card, onClose, onComplete }) => {
+  if (!card) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-8 backdrop-blur-sm bg-black/20">
+      <div className="bg-[#1C1C1E] sm:rounded-[40px] rounded-t-[40px] w-full max-w-lg h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl overflow-hidden slide-up-modal border border-white/10 relative">
+        <div className="p-6 flex justify-between items-center border-b border-white/5 bg-white/5 backdrop-blur-xl absolute top-0 w-full z-20">
+          <div className="text-caption text-secondary">Active Protocol</div>
+          <button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"><X size={16} /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto pt-24 pb-32 px-8 custom-scrollbar">
+           <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide mb-6 bg-white/10 text-white border border-white/10`}>
+             {card.type}
+           </div>
+           <h1 className="text-4xl font-semibold text-white mb-2">{card.title}</h1>
+           <p className="text-xl text-secondary font-light mb-8">{card.subtitle}</p>
+           <div className="glass-panel p-6 mb-8 !bg-white/5">
+             <h3 className="text-caption mb-3 text-blue-400">Mechanism of Action</h3>
+             <p className="text-secondary leading-relaxed font-light">{card.logic}</p>
+           </div>
+           <div className="mb-8">
+             {card.toolType === 'TIMER' && <FocusTimer durationSeconds={card.duration} />}
+             {card.toolType === 'BREATH' && <InteractiveBreathingCircle />}
+             {card.toolType === 'CHECKLIST' && (
+               <div className="glass-panel p-6">
+                 <ul className="space-y-4">
+                   {card.items && card.items.map((item, idx) => (
+                     <li key={idx} className="flex gap-4 items-center text-secondary">
+                       <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center">
+                         <div className="w-3 h-3 rounded-full bg-white opacity-0 hover:opacity-100 transition-opacity cursor-pointer" />
+                       </div>
+                       {item}
+                     </li>
+                   ))}
+                 </ul>
+               </div>
+             )}
+           </div>
+        </div>
+        <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-[#1C1C1E] via-[#1C1C1E] to-transparent z-20">
+          <button onClick={() => onComplete(card.id)} className="w-full py-4 bg-white text-black font-semibold rounded-full hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 shadow-lg">
+            <Check size={18} /> Complete Session
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const LibraryDetail = ({ item, onClose }) => {
+  if (!item) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-8 backdrop-blur-sm bg-black/40">
+      <div className="bg-[#1C1C1E] sm:rounded-[40px] rounded-t-[40px] w-full max-w-lg h-[90vh] sm:h-auto sm:max-h-[85vh] flex flex-col shadow-2xl overflow-hidden slide-up-modal border border-white/10 relative">
+        <div className="p-6 flex justify-between items-center border-b border-white/5 bg-white/5 backdrop-blur-xl absolute top-0 w-full z-20">
+          <div className="text-caption text-secondary">Knowledge Module</div>
+          <button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"><X size={16} /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto pt-24 pb-12 px-8 custom-scrollbar">
+           <div className={`w-16 h-16 rounded-2xl ${item.color} flex items-center justify-center shadow-lg mb-6`}>
+              <BookOpen size={28} className="text-white" />
+           </div>
+           <h1 className="text-3xl font-semibold text-white mb-2">{item.title}</h1>
+           <p className="text-xl text-secondary font-light mb-8">{item.sub}</p>
+
+           <div className="glass-panel p-6 mb-8 !bg-white/5">
+             <h3 className="text-caption mb-3 text-blue-400">Overview</h3>
+             <p className="text-secondary leading-relaxed font-light">{item.description}</p>
+           </div>
+
+           <h3 className="text-caption mb-4 pl-1 text-secondary">Implementation Steps</h3>
+           <div className="glass-panel p-6">
+             <ul className="space-y-6">
+               {item.steps && item.steps.map((step, idx) => (
+                 <li key={idx} className="flex gap-4 items-start text-secondary">
+                   <div className="w-6 h-6 rounded-full bg-white/10 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white font-mono mt-0.5">
+                     {idx + 1}
+                   </div>
+                   <span className="leading-snug">{step}</span>
+                 </li>
+               ))}
+             </ul>
+           </div>
+        </div>
       </div>
     </div>
   );
@@ -876,6 +979,7 @@ export default function App() {
   const [view, setView] = useState('GATEWAY');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeCard, setActiveCard] = useState(null);
+  const [activeLibraryItem, setActiveLibraryItem] = useState(null);
   const [consultantOpen, setConsultantOpen] = useState(false);
   
   const [globalState, setGlobalState] = useState({
@@ -901,6 +1005,7 @@ export default function App() {
       }
       if (key === 'protocol') return { ...prev, cards: value };
       if (key === 'settings') return { ...prev, settings: value };
+      if (key === 'user') return { ...prev, user: value };
       return { ...prev, [key]: value };
     });
   };
@@ -908,8 +1013,20 @@ export default function App() {
   const updateSettings = (id) => {
     updateGlobalState('settings', { ...globalState.settings, [id]: !globalState.settings[id] });
   };
+  
+  const handleLogin = (username) => {
+    updateGlobalState('user', { name: username || 'User' });
+    setView('ONBOARDING');
+  };
 
-  if (view === 'GATEWAY') return <><GlobalStyles /><Gateway onLogin={() => setView('ONBOARDING')} /></>;
+  const handleSignOut = () => {
+    setView('GATEWAY');
+    setActiveTab('dashboard');
+    // Optional: Reset state or keep it for next login?
+    // For now we keep state to simulate re-entry, but you could reset here.
+  };
+
+  if (view === 'GATEWAY') return <><GlobalStyles /><Gateway onLogin={handleLogin} /></>;
   if (view === 'ONBOARDING') return <><GlobalStyles /><SuccessAudit onComplete={() => setView('DASHBOARD')} updateGlobalState={updateGlobalState} /></>;
 
   return (
@@ -924,10 +1041,10 @@ export default function App() {
       </div>
 
       <main className="flex-1 overflow-y-auto pb-24 custom-scrollbar z-10">
-        {activeTab === 'dashboard' && <MissionControl cards={globalState.cards} onCardClick={setActiveCard} assessment={globalState.assessment} />}
-        {activeTab === 'vault' && <Vault />}
+        {activeTab === 'dashboard' && <MissionControl cards={globalState.cards} onCardClick={setActiveCard} assessment={globalState.assessment} onProfileClick={() => setActiveTab('settings')} />}
+        {activeTab === 'vault' && <Vault onOpenLibraryItem={setActiveLibraryItem} />}
         {activeTab === 'evolution' && <Evolution stats={globalState.stats} />}
-        {activeTab === 'settings' && <SettingsView settings={globalState.settings} updateSettings={updateSettings} user={globalState.user} />}
+        {activeTab === 'settings' && <SettingsView settings={globalState.settings} updateSettings={updateSettings} user={globalState.user} onSignOut={handleSignOut} />}
       </main>
       
       {/* GLASS DOCK */}
@@ -939,13 +1056,14 @@ export default function App() {
               {id === 'vault' && <BookOpen size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
               {id === 'evolution' && <Dna size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
               {id === 'settings' && <Settings size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
-              {activeTab === id && <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-white" />}
+              {/* Removed the dot marker as requested */}
             </button>
           ))}
         </div>
       </div>
 
       {activeCard && <ProtocolDetail card={activeCard} onClose={() => setActiveCard(null)} onComplete={(id) => { updateGlobalState('completeCard', id); setActiveCard(null); }} />}
+      {activeLibraryItem && <LibraryDetail item={activeLibraryItem} onClose={() => setActiveLibraryItem(null)} />}
       
       {/* AI FAB */}
       {activeTab === 'dashboard' && !activeCard && (
