@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Activity, 
   Layout, 
@@ -38,7 +38,9 @@ import {
   Dumbbell,
   Cloud,
   Link,
-  Loader2
+  Loader2,
+  Flame,
+  Timer
 } from 'lucide-react';
 
 // --- STYLES & LIQUID GLASS THEME ---
@@ -106,7 +108,7 @@ const GlobalStyles = () => (
       box-shadow: 
         0 4px 24px -1px rgba(0, 0, 0, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      border-radius: 24px;
+      border-radius: 28px;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     
@@ -116,10 +118,13 @@ const GlobalStyles = () => (
     }
 
     .glass-dock {
-      background: rgba(20, 20, 20, 0.7);
-      backdrop-filter: blur(50px) saturate(180%);
-      -webkit-backdrop-filter: blur(50px) saturate(180%);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 15, 15, 0.85); /* Increased opacity for better visibility */
+      backdrop-filter: blur(60px) saturate(180%);
+      -webkit-backdrop-filter: blur(60px) saturate(180%);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
     }
 
     /* Typography Utilities */
@@ -626,23 +631,25 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
          <div className="w-10" />
       </div>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full fade-enter z-10">
-        <h2 className="text-4xl font-bold text-white mb-2 tracking-tight">
-          {step === 1 && "Data Streams"}
-          {step === 2 && "Biomarkers"}
-          {step === 3 && "Bottleneck"}
-          {step === 4 && "Environment"}
-          {step === 5 && "Recovery"}
-        </h2>
-        <p className="text-lg text-secondary mb-12 font-light">
-          {step === 1 && "Connect your digital ecosystem."}
-          {step === 2 && "Sync metabolic data for precision."}
-          {step === 3 && "What is currently limiting you?"}
-          {step === 4 && "Rate your physical context."}
-          {step === 5 && "Subjective restoration score."}
-        </p>
+      <div className="flex-1 flex flex-col pt-24 max-w-md mx-auto w-full fade-enter z-10">
+        <div className="h-24 mb-4">
+          <h2 className="text-4xl font-bold text-white mb-2 tracking-tight">
+            {step === 1 && "Data Streams"}
+            {step === 2 && "Biomarkers"}
+            {step === 3 && "Bottleneck"}
+            {step === 4 && "Environment"}
+            {step === 5 && "Recovery"}
+          </h2>
+          <p className="text-lg text-secondary font-light">
+            {step === 1 && "Connect your digital ecosystem."}
+            {step === 2 && "Sync metabolic data for precision."}
+            {step === 3 && "What is currently limiting you?"}
+            {step === 4 && "Rate your physical context."}
+            {step === 5 && "Subjective restoration score."}
+          </p>
+        </div>
 
-        <div className="glass-panel p-2 rounded-[32px]">
+        <div className="glass-panel p-2 rounded-[32px] min-h-[240px] flex flex-col justify-center relative">
         {step === 1 && (
           <div className="space-y-2 p-2">
             {[
@@ -670,9 +677,9 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
         )}
 
         {step === 2 && (
-          <div className="p-8 flex flex-col items-center text-center gap-6">
-             <div className={`w-24 h-24 rounded-full flex items-center justify-center transition-all ${localData.integrations.blood ? 'bg-green-500 text-white shadow-[0_0_30px_rgba(48,209,88,0.4)]' : 'bg-white/5 text-secondary border border-white/10'}`}>
-                <Droplets size={32} />
+          <div className="p-6 flex flex-col items-center text-center gap-4">
+             <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${localData.integrations.blood ? 'bg-green-500 text-white shadow-[0_0_30px_rgba(48,209,88,0.4)]' : 'bg-white/5 text-secondary border border-white/10'}`}>
+                <Droplets size={24} />
              </div>
              <button onClick={() => setLocalData(p => ({...p, integrations: {...p.integrations, blood: !p.integrations.blood ? 'PDF Upload' : null}}))} className="btn-liquid px-6 py-2">
                {localData.integrations.blood ? "Panel Uploaded" : "Upload PDF Panel"}
@@ -692,18 +699,18 @@ const SuccessAudit = ({ onComplete, updateGlobalState }) => {
         )}
 
         {step === 4 && (
-           <div className="p-8">
+           <div className="p-6">
              <div className="flex justify-between text-caption mb-6"><span>Chaotic</span><span>Zen</span></div>
              <input type="range" min="0" max="100" value={localData.environmentScore} onChange={(e) => setLocalData({...localData, environmentScore: parseInt(e.target.value)})} />
-             <div className="mt-8 text-center text-5xl font-light text-white">{localData.environmentScore}</div>
+             <div className="mt-6 text-center text-4xl font-light text-white">{localData.environmentScore}</div>
            </div>
         )}
 
         {step === 5 && (
-           <div className="p-8">
+           <div className="p-6">
              <div className="flex justify-between text-caption mb-6"><span>Drained</span><span>Charged</span></div>
              <input type="range" min="0" max="100" value={localData.sleepQuality} onChange={(e) => setLocalData({...localData, sleepQuality: parseInt(e.target.value)})} />
-             <div className="mt-8 text-center text-5xl font-light text-white">{localData.sleepQuality}%</div>
+             <div className="mt-6 text-center text-4xl font-light text-white">{localData.sleepQuality}%</div>
            </div>
         )}
         </div>
@@ -881,6 +888,15 @@ const Vault = ({ onOpenLibraryItem }) => {
   const [filter, setFilter] = useState('ALL');
   const pillars = ['ALL', 'SLEEP', 'NUTRITION', 'STRESS', 'ACTIVITY', 'COGNITIVE'];
   
+  // Icon Mapping
+  const categoryIcons = {
+    SLEEP: Moon,
+    NUTRITION: Utensils,
+    STRESS: Wind,
+    ACTIVITY: Dumbbell,
+    COGNITIVE: Brain
+  };
+
   const content = [
     { 
       id: 1, 
@@ -946,21 +962,24 @@ const Vault = ({ onOpenLibraryItem }) => {
       </div>
 
       <div className="space-y-3">
-        {filteredContent.map((item) => (
-          <div key={item.id} onClick={() => onOpenLibraryItem(item)} className="flex gap-5 p-5 glass-panel !rounded-[24px] items-center hover:bg-white/10 transition-colors cursor-pointer group">
-            <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-              <BookOpen size={20} className="text-white" />
+        {filteredContent.map((item) => {
+          const Icon = categoryIcons[item.cat] || BookOpen;
+          return (
+            <div key={item.id} onClick={() => onOpenLibraryItem(item)} className="flex gap-5 p-5 glass-panel !rounded-[24px] items-center hover:bg-white/10 transition-colors cursor-pointer group">
+              <div className={`w-12 h-12 rounded-2xl ${item.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                <Icon size={20} className="text-white" />
+              </div>
+              <div>
+                <div className="text-caption mb-1 opacity-70">{item.cat}</div>
+                <div className="text-white font-medium text-lg">{item.title}</div>
+                <div className="text-secondary text-sm">{item.sub}</div>
+              </div>
+              <div className="flex-1 text-right">
+                <ChevronRight size={20} className="text-white/20 inline-block group-hover:translate-x-1 transition-transform" />
+              </div>
             </div>
-            <div>
-              <div className="text-caption mb-1 opacity-70">{item.cat}</div>
-              <div className="text-white font-medium text-lg">{item.title}</div>
-              <div className="text-secondary text-sm">{item.sub}</div>
-            </div>
-            <div className="flex-1 text-right">
-              <ChevronRight size={20} className="text-white/20 inline-block group-hover:translate-x-1 transition-transform" />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -1055,7 +1074,7 @@ const LibraryDetail = ({ item, onClose }) => {
   );
 };
 
-// EVOLUTION
+// EVOLUTION (ENHANCED)
 const Evolution = ({ stats }) => {
   const scale = (val) => 10 + (val * 4);
   const pSleep = `50,${50 - scale(stats.sleep)}`;
@@ -1065,36 +1084,78 @@ const Evolution = ({ stats }) => {
   const pCog = `${50 - scale(stats.cognitive) * 0.95},${50 - scale(stats.cognitive) * 0.31}`;
   const polyPoints = `${pSleep} ${pNut} ${pAct} ${pStr} ${pCog}`;
 
+  // Fake Trend Data
+  const sleepTrend = [65, 68, 72, 60, 75, 82, 80];
+  const maxSleep = Math.max(...sleepTrend);
+
   return (
     <div className="p-6 pt-12 fade-enter max-w-lg mx-auto pb-32">
       <h2 className="text-3xl font-semibold text-white mb-8">Evolution</h2>
       
+      {/* 1. Radar Chart */}
       <div className="relative aspect-square glass-panel !rounded-full mb-8 flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent">
          <div className="absolute top-8 left-0 right-0 text-center text-caption text-secondary">Bio-Marker Radar</div>
-         
          <svg viewBox="0 0 100 100" className="w-72 h-72 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
             <polygon points="50,10 95,41 79,90 21,90 5,41" fill="white" fillOpacity="0.05" stroke="white" strokeWidth="0.5" strokeOpacity="0.2" />
             <polygon points="50,30 72,45 64,70 36,70 28,45" fill="none" stroke="white" strokeWidth="0.5" strokeOpacity="0.1" />
-            
             <polygon points={polyPoints} fill="rgba(10, 132, 255, 0.4)" stroke="#0A84FF" strokeWidth="2" strokeLinejoin="round" />
-            
             <circle cx="50" cy={50 - scale(stats.sleep)} r="2" fill="white" />
             <circle cx={50 + scale(stats.nutrition) * 0.95} cy={50 - scale(stats.nutrition) * 0.31} r="2" fill="white" />
          </svg>
-         
-         {/* Labels */}
          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white bg-black/40 px-2 py-1 rounded-full backdrop-blur-md">SLEEP</div>
          <div className="absolute bottom-16 right-6 text-[10px] font-bold text-white bg-black/40 px-2 py-1 rounded-full backdrop-blur-md">ACT</div>
          <div className="absolute bottom-16 left-6 text-[10px] font-bold text-white bg-black/40 px-2 py-1 rounded-full backdrop-blur-md">STR</div>
       </div>
 
-      <div className="glass-panel p-6 !rounded-[32px]">
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-secondary font-medium">Cognitive Load</span>
-          <span className="text-white font-bold">64%</span>
+      {/* 2. Workout Readiness / Fatigue */}
+      <div className="glass-panel p-6 mb-4 !rounded-[32px] flex items-center justify-between">
+        <div>
+          <div className="text-caption text-blue-400 mb-1">Next Session Window</div>
+          <div className="text-2xl font-medium text-white">17:00 - 19:30</div>
+          <div className="text-xs text-secondary mt-1">Based on Circadian Peak & Fatigue</div>
         </div>
-        <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-          <div className="h-full w-[64%] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+        <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+          <Timer size={24} />
+        </div>
+      </div>
+
+      {/* 3. Previous Session Info */}
+      <div className="glass-panel p-6 mb-4 !rounded-[32px]">
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-caption text-orange-400">Previous Session</div>
+          <div className="text-xs text-secondary">Yesterday</div>
+        </div>
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white">
+            <Dumbbell size={18} />
+          </div>
+          <div>
+            <div className="text-white font-medium">Upper Body Hypertrophy</div>
+            <div className="text-xs text-secondary">Volume: 4,200kg • 1yr Experience Level</div>
+          </div>
+        </div>
+        <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+          <div className="bg-orange-500 w-[70%] h-full rounded-full" />
+        </div>
+        <div className="flex justify-between text-[10px] text-secondary mt-2">
+          <span>Strain: High</span>
+          <span>Recovery: 70%</span>
+        </div>
+      </div>
+
+      {/* 4. Sleep Trend Graph */}
+      <div className="glass-panel p-6 !rounded-[32px]">
+        <div className="text-caption text-indigo-400 mb-4">7-Day Sleep Quality</div>
+        <div className="flex items-end justify-between h-24 gap-2">
+          {sleepTrend.map((val, i) => (
+            <div key={i} className="flex flex-col items-center gap-2 flex-1">
+              <div 
+                className={`w-full rounded-t-sm transition-all duration-500 ${i === 6 ? 'bg-indigo-500' : 'bg-white/10'}`} 
+                style={{ height: `${(val / 100) * 100}%` }} 
+              />
+              <span className="text-[9px] text-secondary font-mono">{['M','T','W','T','F','S','S'][i]}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -1173,15 +1234,22 @@ export default function App() {
         {activeTab === 'settings' && <SettingsView settings={globalState.settings} updateSettings={updateSettings} user={globalState.user} onSignOut={handleSignOut} />}
       </main>
       
-      {/* GLASS DOCK */}
+      {/* GLASS DOCK - LIQUID GLASS & ROUNDED UPDATE */}
       <div className="fixed bottom-0 w-full z-30 pb-6 pt-2 px-6">
-        <div className="glass-dock h-20 max-w-sm mx-auto rounded-[32px] flex justify-around items-center px-2 shadow-2xl border border-white/10">
-          {['dashboard', 'vault', 'evolution', 'settings'].map(id => (
-            <button key={id} onClick={() => setActiveTab(id)} className={`relative flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 ${activeTab === id ? 'bg-white/10 text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' : 'text-secondary hover:text-white hover:bg-white/5'}`}>
-              {id === 'dashboard' && <Layout size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
-              {id === 'vault' && <BookOpen size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
-              {id === 'evolution' && <Dna size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
-              {id === 'settings' && <Settings size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
+        <div className="glass-dock h-20 max-w-sm mx-auto rounded-[32px] flex justify-around items-center px-4 shadow-2xl border border-white/10">
+          {/* REORDERED: Dashboard, Evolution, Vault (Library), Settings */}
+          {['dashboard', 'evolution', 'vault', 'settings'].map(id => (
+            <button 
+              key={id} 
+              onClick={() => setActiveTab(id)} 
+              className={`relative flex flex-col items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 group ${activeTab === id ? 'bg-white/10 text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' : 'text-secondary hover:text-white hover:bg-white/5'}`}
+            >
+              <div className={`transition-all duration-300 ${activeTab === id ? 'scale-110' : 'group-hover:scale-105'}`}>
+                {id === 'dashboard' && <Layout size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
+                {id === 'evolution' && <Dna size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
+                {id === 'vault' && <BookOpen size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
+                {id === 'settings' && <Settings size={24} strokeWidth={activeTab === id ? 2.5 : 2} />}
+              </div>
             </button>
           ))}
         </div>
